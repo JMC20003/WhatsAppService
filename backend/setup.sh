@@ -1,0 +1,1 @@
+docker build -t whatsapp-service . && docker run -d --name whatsapp-backend -p 5111:5111 --env-file .env whatsapp-service

@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+LICENSE
+README.md
+setup.sh
+Dockerfile
+public/
+*.DS_store

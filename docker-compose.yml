@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  whatsapp-backend:
+    container_name: whatsapp-backend
+    build:
+      context: ./whatsapp-service-main
+    ports:
+      - "5111:5111"          # Exponer backend al host
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=tu_super_secreto_complejo
+      - API_KEY=tu_api_key_segura
+      - PORT=5111
+      - USER_USERNAME=usuario
+      - USER_PASSWORD=usuario123
+      - USER_ROLE=user
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - ADMIN_ROLE=admin
+      - ALLOWED_ORIGINS=http://31.97.165.237:5171   # frontend permitido
+    volumes:
+      - ./whatsapp-service-main/auth_info:/app/auth_info
+    restart: unless-stopped
+
+  whatsapp-frontend:
+    container_name: whatsapp-frontend
+    build:
+      context: ./whatsapp-frontend-main
+      args:
+        VITE_API_BASE_URL: http://31.97.165.237:5111   # backend público
+    ports:
+      - "5171:3000"          # Exponer frontend al host
+    environment:
+      - VITE_API_BASE_URL=http://31.97.165.237:5111
+    depends_on:
+      - whatsapp-backend
+    restart: unless-stopped
