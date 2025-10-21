@@ -4,7 +4,7 @@ services:
   whatsapp-backend:
     container_name: whatsapp-backend
     build:
-      context: ./whatsapp-service-main
+      context: ./backend
     ports:
       - "5111:5111"          # Exponer backend al host
     environment:
@@ -26,7 +26,7 @@ services:
   whatsapp-frontend:
     container_name: whatsapp-frontend
     build:
-      context: ./whatsapp-frontend-main
+      context: ./frontend
       args:
         VITE_API_BASE_URL: http://31.97.165.237:5111   # backend público
     ports:
@@ -36,3 +36,4 @@ services:
     depends_on:
       - whatsapp-backend
     restart: unless-stopped
+
