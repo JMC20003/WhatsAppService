@@ -26,6 +26,8 @@ const io = new Server(server, {
 
 app.use(helmet());
 
+app.set('trust proxy', true);
+
 app.use(cors({
   origin: ALLOWED_ORIGINS,
   credentials: true,
