@@ -2,6 +2,11 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+
+# Copiar dependencias
+COPY package*.json ./
+RUN npm install --production
+
 COPY package*.json ./
 RUN npm ci --omit=dev
 

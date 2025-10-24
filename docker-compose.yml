@@ -1,22 +1,14 @@
+version: "3.9"
+
 services:
   whatsapp-backend:
     container_name: whatsapp-backend
     build:
       context: ./backend
     ports:
-      - "5111:5111"          # Exponer backend al host
-    environment:
-      - NODE_ENV=production
-      - JWT_SECRET=tu_super_secreto_complejo
-      - API_KEY=tu_api_key_segura
-      - PORT=5111
-      - USER_USERNAME=usuario
-      - USER_PASSWORD=usuario123
-      - USER_ROLE=user
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=admin123
-      - ADMIN_ROLE=admin
-      - ALLOWED_ORIGINS=https://appwhatsapp.centropsicologicocontigovoy.com   # frontend permitido
+      - "5111:5111"
+    env_file:
+      - .env
     volumes:
       - ./backend/auth_info:/app/auth_info
     restart: unless-stopped
@@ -26,11 +18,11 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE_URL: https://apiwhatsapp.centropsicologicocontigovoy.com   # backend público
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:
-      - "5171:3000"          # Exponer frontend al host
+      - "5171:3000"
     environment:
-      - VITE_API_BASE_URL=https://apiwhatsapp.centropsicologicocontigovoy.com
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     depends_on:
       - whatsapp-backend
     restart: unless-stopped
