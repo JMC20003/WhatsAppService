@@ -13,9 +13,10 @@ import 'dotenv/config';
 // Procesa ALLOWED_ORIGINS (separado por comas) o usa localhost por defecto
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['https://appwhatsapp.centropsicologicocontigovoy.com'];
+  : ['http://localhost:3000', 'http://localhost:3001'];
 
 const app = express();
+app.set('trust proxy', 1); // <-- ¡ARREGLO #1: Para el error 'X-Forwarded-For'!
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -26,15 +27,13 @@ const io = new Server(server, {
 
 app.use(helmet());
 
-app.set('trust proxy', true);
-
-app.use(cors({
+/* app.use(cors({
   origin: ALLOWED_ORIGINS,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key']
-}));
-
+})); */
+app.use(cors())
 
 // Aumentando limite a 50mb
 app.use(express.json({
@@ -52,6 +51,7 @@ const limiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  // Quitamos 'trustProxy: true' de aquí, ya que 'app.set' es suficiente
   skip: (req) => {
     // Excluir el endpoint qr-status del rate limiting
     return req.path === '/api/qr-status' || req.path === '/api/qr-status/';
@@ -59,6 +59,16 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
+
+// Añadir ruta de Health Check para Dokploy
+app.get('/health', (req, res) => {
+  const status = whatsappService.getQRStatus();
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    connection: status.isConnected ? 'connected' : 'disconnected'
+  });
+});
 
 // Rutas de autenticación (sin API key)
 app.use('/api/auth', authRoutes);
@@ -117,14 +127,14 @@ io.on('connection', (socket) => {
 // -> Validando el token por conexión de socket
 io.use((socket, next) => {
   const token = socket.handshake?.auth?.token;
-  if(!token) return next(new Error('Token requerido'));
+  if (!token) return next(new Error('Token requerido'));
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     socket.userId = decoded?.userId;
     socket.user = decoded;
     next();
-  } catch(err) {
+  } catch (err) {
     console.error('Token inválido en conexión socket: ', err.message);
     next(new Error('Token inválido o expirado'));
   }

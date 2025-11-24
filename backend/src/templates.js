@@ -161,6 +161,6 @@ export function getLeadTemplate(option, params={}){
 
   switch (option) {
     case 'lead':
-      return `Hola ${nombre}, gracias por contactar con NHL Decoraciones, vimos que tienes interes en la categoria de ${categoria}`
+      return `¡Hola ${nombre} 😃 Gracias por dejarnos tus datos. Ya tienes tu 25% OFF asegurado en tu primera asesoría de diseño. (Oferta válida por tiempo limitado). ¿Cuándo te viene mejor agendar tu cita para empezar a trabajar en tu proyecto?`
   }
 }
