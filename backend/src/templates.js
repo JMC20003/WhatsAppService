@@ -38,6 +38,7 @@ export function getTemplateNHL(option, params = {}) {
 /////////////////////////////////////////////////////////////////////
 export function getTemplate(option, params = {}) {
   const {
+    nombre = '',
     nombrePsicologo = '',
     fecha = '',
     hora = ''
@@ -45,19 +46,21 @@ export function getTemplate(option, params = {}) {
 
   switch (option) {
     case 'cita_gratis':
-      return `¡Hola 👋
+      return `👋 Hola ${nombre},
 
-✅ Tu primera cita GRATUITA ha sido confirmada:
+¡Gracias por dar este paso hacia tu bienestar! 💜
 
-📅 Fecha: ${fecha}
-🕐 Hora: ${hora}
+Tu cita ha sido *confirmada* ✅
+
+ *Te esperamos el ${fecha}*
+🕐 *A las ${hora}*  
+🏥 *En el Centro Psicológico Contigo Voy*  
 👨‍⚕️ Psicólogo: ${nombrePsicologo}
 
-🎉 ¡Recuerda que tu primera consulta es completamente GRATIS!
+Si necesitas reprogramar o cancelar, puedes escribirnos por este mismo chat.
 
-Si tienes alguna consulta, no dudes en contactarnos.
+Gracias por confiar en Contigo Voy. 💙`;
 
-¡Te esperamos! 🌟`;
 
     case 'cita_pagada':
       return `¡Hola 👋
@@ -105,23 +108,11 @@ Por favor, confirma tu asistencia respondiendo a este mensaje.
 
 // Template para mensaje de pago aceptado
 export function getAcceptanceTemplate(comentario = '') {
-  return `✅ COMPROBANTE APROBADO ✅
+  return `👋 Hola,
 
-🎉 ¡Excelente! Tu comprobante de pago ha sido revisado y aprobado.
+${comentario}
 
-📋 Estado de la revisión:
-   • ✅ APROBADO
-   • 📅 Fecha de revisión: ${new Date().toLocaleDateString('es-ES')}
-   • 🕐 Hora: ${new Date().toLocaleTimeString('es-ES')}
-
-${comentario ? `💬 Comentario del administrador:
-"${comentario}"
-
-` : ''}🔒 Tu información está segura con nosotros.
-
-Si tienes alguna pregunta sobre tu pago, no dudes en contactarnos.
-
-¡Gracias por tu paciencia! 🌟`;
+✨ Si necesitas ayuda, estamos para apoyarte.`;
 }
 
 // Template para mensaje de pago rechazado
@@ -153,7 +144,7 @@ ${comentario ? `💬 Comentario del administrador:
 ¡Estamos aquí para ayudarte a resolverlo! 🤝`;
 }
 
-export function getLeadTemplate(option, params={}){
+export function getLeadTemplate(option, params = {}) {
   const {
     nombre = '',
     categoria = ''
