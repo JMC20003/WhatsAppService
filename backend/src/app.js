@@ -33,7 +33,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key']
 }));
-app.use(cors())
+/* app.use(cors()) */
 
 // Aumentando limite a 50mb
 app.use(express.json({
