@@ -20,7 +20,7 @@ COPY . .
 EXPOSE 5111
 
 # Crear la carpeta de sesión dentro del contenedor
-RUN mkdir -p /app/auth_info && chmod -R 775 /app/auth_info
+RUN mkdir -p /app/auth_info && chmod -R 775 /app
 
 # Expone el puerto definido en .env o por defecto 5111
 CMD ["node", "index.js"]
