@@ -10,73 +10,30 @@ import jwt from 'jsonwebtoken';
 import whatsappService from './services/whatsapp.service.js';
 import 'dotenv/config';
 
-// =========================
-// CORS: leer múltiples orígenes desde .env
-// =========================
-const rawAllowedOrigins = process.env.ALLOWED_ORIGINS;
-// Si ALLOWED_ORIGINS es "*", permitimos todos en modo "reflejar origen"
-const allowAllOrigins = rawAllowedOrigins === '*';
-
-const ALLOWED_ORIGINS = (!rawAllowedOrigins || allowAllOrigins)
-  ? ['http://localhost:3000', 'http://localhost:3001'] // fallback en local
-  : rawAllowedOrigins.split(',').map(o => o.trim());
-
-console.log('ALLOWED_ORIGINS =>', ALLOWED_ORIGINS, 'allowAllOrigins =>', allowAllOrigins);
+// Procesa ALLOWED_ORIGINS (separado por comas) o usa localhost por defecto
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:3000', 'http://localhost:3001'];
 
 const app = express();
-app.set('trust proxy', 1); // <-- Para el tema de X-Forwarded-For / rate-limit detrás de proxy
-
+app.set('trust proxy', 1); // <-- ¡ARREGLO #1: Para el error 'X-Forwarded-For'!
 const server = createServer(app);
-
-// =========================
-// Socket.IO con CORS
-// =========================
 const io = new Server(server, {
-  cors: allowAllOrigins
-    ? {
-      origin: true, // refleja el origen que hace la petición
-      credentials: true,
-      methods: ['GET', 'POST']
-    }
-    : {
-      origin: ALLOWED_ORIGINS,
-      credentials: true,
-      methods: ['GET', 'POST']
-    }
+  cors: {
+    origin: ALLOWED_ORIGINS,
+    methods: ["GET", "POST"]
+  }
 });
 
 app.use(helmet());
 
-// =========================
-// CORS para Express
-// =========================
-if (allowAllOrigins) {
-  // Refleja cualquier origen (útil si en algún momento pones ALLOWED_ORIGINS="*")
-  app.use(cors({
-    origin: true, // refleja el origin
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key']
-  }));
-} else {
-  // Solo los dominios listados en ALLOWED_ORIGINS
-  app.use(cors({
-    origin: (origin, callback) => {
-      // Permitir requests sin origen (Postman, curl, etc.)
-      if (!origin) return callback(null, true);
-
-      if (ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-
-      console.warn(`CORS bloqueó el origen: ${origin}`);
-      return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key']
-  }));
-}
+/* app.use(cors({
+  origin: ALLOWED_ORIGINS,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key']
+})); */
+app.use(cors())
 
 // Aumentando limite a 50mb
 app.use(express.json({
@@ -94,6 +51,7 @@ const limiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  // Quitamos 'trustProxy: true' de aquí, ya que 'app.set' es suficiente
   skip: (req) => {
     // Excluir el endpoint qr-status del rate limiting
     return req.path === '/api/qr-status' || req.path === '/api/qr-status/';
@@ -125,7 +83,7 @@ io.on('connection', (socket) => {
   // Verificar autenticación del token
   const token = socket.handshake.auth.token;
   if (!token) {
-    console.log('Se desconectó porque no hay token');
+    console.log('Se desconecto por que no hay token');
     socket.disconnect();
     return;
   }
@@ -133,7 +91,7 @@ io.on('connection', (socket) => {
   // Verificar JWT
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      console.log('Se desconectó porque la verificación del token es falsa');
+      console.log('Se desconecto por que la verificacion del token es falsa');
       socket.disconnect();
       return;
     }
