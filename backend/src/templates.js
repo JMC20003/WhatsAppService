@@ -13,7 +13,7 @@ export function getTemplateNHL(option, params = {}) {
   // ✅ Ruta correcta al flyer
   const imagePath = path.resolve(
     __dirname,
-    '..', // salir de src
+    '..',             // salir de src
     'public',
     'img',
     'flyers',
@@ -37,23 +37,12 @@ export function getTemplateNHL(option, params = {}) {
 }
 /////////////////////////////////////////////////////////////////////
 export function getTemplate(option, params = {}) {
-  // ✅ Compatibilidad: acepta nombrePsicologo o psicologo
-  // ✅ Agregado: jitsi_url para incluir el link en el MISMO mensaje
   const {
     nombre = '',
     nombrePsicologo = '',
-    psicologo = '',
     fecha = '',
-    hora = '',
-    jitsi_url = ''
+    hora = ''
   } = params;
-
-  const psicologoFinal = nombrePsicologo || psicologo || '';
-
-  // Bloque del link (solo si existe)
-  const linkBlock = jitsi_url
-    ? `\nIngresa a la reunión: ${jitsi_url}\n`
-    : '';
 
   switch (option) {
     case 'cita_gratis':
@@ -61,15 +50,17 @@ export function getTemplate(option, params = {}) {
 
 ¡Gracias por dar este paso hacia tu bienestar! 💜
 
-Tu cita ha sido confirmada ✅
+Tu cita ha sido *confirmada* ✅
 
-Te esperamos el ${fecha}
-🕐 A las ${hora}  
-🏥 En el Centro Psicológico Contigo Voy  
-👨‍⚕️ Psicólogo: ${psicologoFinal}${linkBlock}
+ *Te esperamos el ${fecha}*
+🕐 *A las ${hora}*  
+🏥 *En el Centro Psicológico Contigo Voy*  
+👨‍⚕️ Psicólogo: ${nombrePsicologo}
+
 Si necesitas reprogramar o cancelar, puedes escribirnos por este mismo chat.
 
 Gracias por confiar en Contigo Voy. 💙`;
+
 
     case 'cita_pagada':
       return `¡Hola 👋
@@ -78,7 +69,8 @@ Gracias por confiar en Contigo Voy. 💙`;
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${psicologoFinal}${linkBlock}
+👨‍⚕️ Psicólogo: ${nombrePsicologo}
+
 Por favor, realiza el pago antes de la consulta para confirmar tu reserva.
 
 Si tienes dudas, contáctanos.
@@ -92,7 +84,8 @@ Si tienes dudas, contáctanos.
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${psicologoFinal}${linkBlock}
+👨‍⚕️ Psicólogo: ${nombrePsicologo}
+
 Por favor, confirma tu asistencia respondiendo a este mensaje.
 
 ¡Nos vemos pronto!`;
@@ -104,7 +97,8 @@ Por favor, confirma tu asistencia respondiendo a este mensaje.
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${psicologoFinal}${linkBlock}
+👨‍⚕️ Psicólogo: ${nombrePsicologo}
+
 ¡Gracias por avisarnos!`;
 
     default:
@@ -151,12 +145,13 @@ ${comentario ? `💬 Comentario del administrador:
 }
 
 export function getLeadTemplate(option, params = {}) {
-  const { nombre = '', categoria = '' } = params;
+  const {
+    nombre = '',
+    categoria = ''
+  } = params;
 
   switch (option) {
     case 'lead':
-      return `¡Hola ${nombre} 😃 Gracias por dejarnos tus datos. Ya tienes tu 25% OFF asegurado en tu primera asesoría de diseño. (Oferta válida por tiempo limitado). ¿Cuándo te viene mejor agendar tu cita para empezar a trabajar en tu proyecto?`;
-    default:
-      return 'Opción de plantilla no válida.';
+      return `¡Hola ${nombre} 😃 Gracias por dejarnos tus datos. Ya tienes tu 25% OFF asegurado en tu primera asesoría de diseño. (Oferta válida por tiempo limitado). ¿Cuándo te viene mejor agendar tu cita para empezar a trabajar en tu proyecto?`
   }
 }
