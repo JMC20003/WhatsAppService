@@ -41,8 +41,13 @@ export function getTemplate(option, params = {}) {
     nombre = '',
     nombrePsicologo = '',
     fecha = '',
-    hora = ''
+    hora = '',
+    // ✅ NUEVO (no cambia nada si no lo envías)
+    jitsi_url = ''
   } = params;
+
+  // ✅ NUEVO (solo se agrega si existe link)
+  const linkLine = jitsi_url ? `\nIngresa a la reunion: ${jitsi_url}\n` : '';
 
   switch (option) {
     case 'cita_gratis':
@@ -55,8 +60,7 @@ Tu cita ha sido *confirmada* ✅
  *Te esperamos el ${fecha}*
 🕐 *A las ${hora}*  
 🏥 *En el Centro Psicológico Contigo Voy*  
-👨‍⚕️ Psicólogo: ${nombrePsicologo}
-
+👨‍⚕️ Psicólogo: ${nombrePsicologo}${linkLine}
 Si necesitas reprogramar o cancelar, puedes escribirnos por este mismo chat.
 
 Gracias por confiar en Contigo Voy. 💙`;
@@ -69,8 +73,7 @@ Gracias por confiar en Contigo Voy. 💙`;
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${nombrePsicologo}
-
+👨‍⚕️ Psicólogo: ${nombrePsicologo}${linkLine}
 Por favor, realiza el pago antes de la consulta para confirmar tu reserva.
 
 Si tienes dudas, contáctanos.
@@ -84,8 +87,7 @@ Si tienes dudas, contáctanos.
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${nombrePsicologo}
-
+👨‍⚕️ Psicólogo: ${nombrePsicologo}${linkLine}
 Por favor, confirma tu asistencia respondiendo a este mensaje.
 
 ¡Nos vemos pronto!`;
@@ -97,8 +99,7 @@ Por favor, confirma tu asistencia respondiendo a este mensaje.
 
 📅 Fecha: ${fecha}
 🕐 Hora: ${hora}
-👨‍⚕️ Psicólogo: ${nombrePsicologo}
-
+👨‍⚕️ Psicólogo: ${nombrePsicologo}${linkLine}
 ¡Gracias por avisarnos!`;
 
     default:
