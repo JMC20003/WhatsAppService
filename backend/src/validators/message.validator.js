@@ -7,6 +7,18 @@ export const validateSendMessage = [
     .withMessage('El número de teléfono es requerido')
     .matches(/^[\d\s\-\+\(\)]+$/)
     .withMessage('El número de teléfono debe contener solo dígitos, espacios, guiones, paréntesis y signo +'),
+  body('nombre')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 }),
+
+  body('jitsi_url')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 }),
+
   body('templateOption')
     .isString()
     .notEmpty()
@@ -37,11 +49,12 @@ export const validateSendMessage = [
     const selectedDate = new Date(value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (selectedDate < today) {
       throw new Error('La fecha no puede ser en el pasado');
     }
     return true;
+
   }),
   // Validación personalizada para verificar formato de hora válido
   body('hora').custom((value) => {
@@ -54,8 +67,8 @@ export const validateSendMessage = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: 'Errores de validación',
         errors: errors.array().map(error => ({
           field: error.path,
@@ -84,19 +97,19 @@ export const validateSendImage = [
       if (!value.startsWith('data:image/')) {
         throw new Error('Los datos de la imagen deben estar en formato base64 con prefijo data:image/');
       }
-      
+
       // Validar que tenga el formato correcto
       const base64Regex = /^data:image\/[a-z]+;base64,/;
       if (!base64Regex.test(value)) {
         throw new Error('Formato de imagen base64 inválido');
       }
-      
+
       // Validar que el contenido base64 no esté vacío
       const base64Data = value.replace(/^data:image\/[a-z]+;base64,/, '');
       if (!base64Data || base64Data.length === 0) {
         throw new Error('El contenido de la imagen no puede estar vacío');
       }
-      
+
       return true;
     }),
   body('caption')
@@ -108,8 +121,8 @@ export const validateSendImage = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: 'Errores de validación',
         errors: errors.array().map(error => ({
           field: error.path,
@@ -139,8 +152,8 @@ export const validateSendMessageAccept = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: 'Errores de validación',
         errors: errors.array().map(error => ({
           field: error.path,
@@ -170,8 +183,8 @@ export const validateSendMessageReject = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: 'Errores de validación',
         errors: errors.array().map(error => ({
           field: error.path,

@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export async function sendMessage(req, res) {
   try {
-    const { phone, templateOption, psicologo, fecha, hora } = req.body;
+    const { phone, templateOption, psicologo, fecha, hora, nombre, jitsi_url } = req.body;
 
     // Validaciones adicionales
     if (!phone || !templateOption || !psicologo || !fecha || !hora) {
@@ -25,6 +25,8 @@ export async function sendMessage(req, res) {
       psicologo,
       fecha,
       hora,
+      nombre: nombre || '',
+      jitsi_url: jitsi_url || ''
     });
 
     res.json({
