@@ -1,4 +1,36 @@
 import { body, validationResult } from 'express-validator';
+export const validateSendText = [
+  body('phone')
+    .isString()
+    .notEmpty()
+    .withMessage('El número de teléfono es requerido')
+    .matches(/^[\d\s\-\+\(\)]+$/)
+    .withMessage('El número de teléfono debe contener solo dígitos, espacios, guiones, paréntesis y signo +'),
+
+  body('message')
+    .isString()
+    .notEmpty()
+    .withMessage('El mensaje es requerido')
+    .trim()
+    .isLength({ max: 4096 })
+    .withMessage('El mensaje no puede exceder 4096 caracteres'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Errores de validación',
+        errors: errors.array().map(error => ({
+          field: error.path,
+          message: error.msg,
+          value: error.value
+        }))
+      });
+    }
+    next();
+  }
+];
 
 export const validateSendMessage = [
   body('phone')

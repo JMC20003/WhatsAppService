@@ -16,13 +16,16 @@ import {
   sendLeadMessage,
   sendMessageNHL2,
   sendMessageNHL3,
-  sendLeadMessageWithBanner
+  sendLeadMessageWithBanner,
+  sendText,
+
 } from '../controllers/message.controller.js';
-import { 
-  validateSendMessage, 
-  validateSendImage, 
-  validateSendMessageAccept, 
-  validateSendMessageReject 
+import {
+  validateSendMessage,
+  validateSendImage,
+  validateSendMessageAccept,
+  validateSendMessageReject,
+  validateSendText
 } from '../validators/message.validator.js';
 import { authenticateJWT, authorizeRole, apiKeyAuth } from '../middlewares/auth.middleware.js';
 import { Router } from 'express';
@@ -44,7 +47,7 @@ const router = Router();
 //router.post('/send-messageNHL', authFlex, sendMessageNHL2);//Nuestro
 router.post('/send-messageNHL', authFlex, uploadFlyer, sendMessageNHL3);//Nuestro
 router.post('/send-message', authFlex, validateSendMessage, sendMessage);
-router.post('/send-lead-message', authFlex,  sendLeadMessage); //Nuestro
+router.post('/send-lead-message', authFlex, sendLeadMessage); //Nuestro
 router.post('/send-lead-message-image', authFlex, sendLeadMessageWithBanner); //Nuestro con imagen
 router.post('/send-message-accept', validateSendMessageAccept, sendMessageAccept);
 router.post('/send-message-reject', validateSendMessageReject, sendMessageReject);
@@ -59,5 +62,6 @@ router.post('/qr-request', authenticateJWT, authorizeRole('admin'), requestNewQr
 router.post('/qr-expire', authenticateJWT, authorizeRole('admin'), forceExpireQr);
 router.post('/auth/reset', authenticateJWT, authorizeRole('admin'), resetAuth);
 router.post('/force-reconnect', authenticateJWT, authorizeRole('admin'), forceReconnect);
+router.post('/send-text', authFlex, validateSendText, sendText);
 
 export default router;

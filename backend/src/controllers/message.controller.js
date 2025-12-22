@@ -77,6 +77,30 @@ export async function sendMessageNHL(req, res) {
     });
   }
 }
+export async function sendText(req, res) {
+  try {
+    const { phone, message } = req.body;
+
+    const result = await whatsappService.sendMessageWithRetry(
+      `${phone.replace(/\D/g, '')}@s.whatsapp.net`,
+      message
+    );
+
+    return res.json({
+      success: true,
+      message: 'Texto enviado',
+      messageId: result?.key?.id
+    });
+  } catch (error) {
+    console.error("Error en sendText:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+
 
 export async function sendMessageNHL3(req, res) {
   try {
