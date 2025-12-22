@@ -57,10 +57,11 @@ export function getTemplate(option, params = {}) {
 
       Aquí tienes los detalles de tu espacio:
 
-      ✨ Día: 📅 ${fecha}
-      ✨ Hora: ⏰ ${hora} hrs
-    ✨ Especialista: 👩‍⚕️ ${nombrePsicologo}
-      ${linkLine}
+            ✨ Día: 📅 ${fecha}
+            ✨ Hora: ⏰ ${hora} hrs
+            ✨ Especialista: 👩‍⚕️ ${nombrePsicologo}
+            ✨ ${linkLine}
+            
       Nos vemos pronto para dar este paso juntos hacia tu bienestar.  
       ¡Te esperamos con mucha ilusión! 🌿`;
 
