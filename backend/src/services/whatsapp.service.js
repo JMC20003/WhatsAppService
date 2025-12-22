@@ -61,7 +61,7 @@ async function cleanupConnection() {
 function getQRStatus() {
   const now = Date.now();
   const hasActiveQR = !!connectionState.qrData && now < connectionState.qrData.expiresAt;
- 
+
   let qrInfo = null;
   if (connectionState.qrData) {
     const timeRemaining = Math.floor((connectionState.qrData.expiresAt - now) / 1000);
@@ -72,7 +72,7 @@ function getQRStatus() {
       age: Math.floor((now - new Date(connectionState.qrData.createdAt).getTime()) / 1000)
     };
   }
- 
+
   return {
     hasActiveQR,
     qrData: qrInfo,
@@ -93,7 +93,7 @@ function getQRStatus() {
 async function generateQRFromUpdate(qrString) {
   try {
     const qrResult = await generateOptimalQR(qrString, 'PNG');
- 
+
     connectionState.qrData = {
       image: qrResult.image,
       expiresAt: Date.now() + (60000 * 2), // 2 minutos
@@ -104,7 +104,7 @@ async function generateQRFromUpdate(qrString) {
       mimeType: qrResult.mimeType,
       fallback: qrResult.fallback || false
     };
- 
+
     emitQrStatusUpdate(getQRStatus());
     logger.info('QR generated from connection update', { format: qrResult.format });
   } catch (error) {
@@ -174,13 +174,13 @@ async function generateNewQR(session) {
 async function attemptReconnect() {
   const config = getWhatsAppConfig();
   const maxAttempts = config.stability?.maxReconnectAttempts || 5;
- 
+
   // 1. Prevenir que se apilen las reconexiones
   if (connectionState.isReconnecting) {
     logger.warn('Reconnection already in progress, skipping new attempt.');
     return;
   }
- 
+
   // 2. Comprobar límite de intentos
   if (connectionState.reconnectAttempts >= maxAttempts) {
     logger.error('Max reconnection attempts reached. Giving up. Please request a new QR manually.');
@@ -188,18 +188,18 @@ async function attemptReconnect() {
     connectionState.isConnecting = false;
     connectionState.isReconnecting = false;
     connectionState.connectionStatus = 'disconnected';
-    emitQrStatusUpdate(getQRStatus()); 
+    emitQrStatusUpdate(getQRStatus());
     return;
   }
- 
+
   connectionState.isReconnecting = true; // <-- ¡BLOQUEO!
   connectionState.reconnectAttempts++; // Incrementar intentos
- 
+
   logger.info('Attempting automatic reconnection', {
     attempt: connectionState.reconnectAttempts,
     maxAttempts: maxAttempts
   });
- 
+
   try {
     await cleanupConnection();
     connectionState.socket = await createNewSession();
@@ -249,29 +249,29 @@ async function createNewSession() {
     const { state, saveCreds } = await useMultiFileAuthState(authPathInfo());
     const { version } = await fetchLatestBaileysVersion();
     const config = getWhatsAppConfig();
- 
+
     const sock = makeWASocket({
       version,
       auth: state,
       printQRInTerminal: config.security?.printQRInTerminal || false,
       connectTimeoutMs: config.stability?.connectionTimeout || 60000,
       browser: [config.browser?.name || 'TuApp', config.browser?.version || '1.0', config.browser?.os || 'Ubuntu'],
-      
+
       // --- ¡ARREGLO DE PROXY! ---
       // Más rápido que el timeout del proxy (60s)
-      keepAliveIntervalMs: 30000, 
+      keepAliveIntervalMs: 30000,
       // --- FIN DE ARREGLO ---
- 
+
       markOnlineOnConnect: config.security?.markOnlineOnConnect !== false,
       syncFullHistory: false,
       shouldIgnoreJid: (jid) => {
-        if (!jid || typeof jid !== 'string') return false; 
+        if (!jid || typeof jid !== 'string') return false;
         return jid.includes('@broadcast') || jid.includes('@newsletter');
       },
     });
- 
+
     sock.ev.on('creds.update', saveCreds);
- 
+
     // Configurar event handlers (El "Cerebro")
     sock.ev.on('connection.update', (update) => {
       try {
@@ -279,12 +279,12 @@ async function createNewSession() {
           connection: update.connection,
           qr: update.qr ? 'present' : 'absent'
         });
- 
+
         if (update.connection === 'connecting') {
           connectionState.connectionStatus = 'connecting';
           connectionState.isConnecting = true;
           connectionState.lastConnectionAttempt = Date.now();
-        
+
         } else if (update.connection === 'open') {
           connectionState.connectionStatus = 'connected';
           connectionState.isConnecting = false;
@@ -292,36 +292,36 @@ async function createNewSession() {
           connectionState.reconnectAttempts = 0; // ¡ÉXITO! Reiniciar contador
           connectionState.isReconnecting = false; // ¡ÉXITO! Liberar bloqueo
           if (connectionState.reconnectTimer) clearTimeout(connectionState.reconnectTimer); // Limpiar timer
-         
+
           logger.info('WhatsApp connected successfully');
           emitQrStatusUpdate(getQRStatus());
- 
+
         } else if (update.connection === 'close') {
           connectionState.connectionStatus = 'disconnected';
           connectionState.isConnecting = false;
           connectionState.isReconnecting = false; // Liberar bloqueo
-         
+
           const lastDisconnect = update.lastDisconnect;
           const statusCode = lastDisconnect?.error?.output?.statusCode;
           const reason = lastDisconnect?.error?.message || 'unknown';
- 
+
           logger.warn('Connection closed', {
             reason: reason,
             statusCode: statusCode,
             attempt: connectionState.reconnectAttempts
           });
-         
+
           // Códigos de "Cierre de sesión" que NO deben reintentarse
           const shouldReconnect = (statusCode !== 401 && statusCode !== 428 && statusCode !== 440);
- 
+
           if (shouldReconnect) {
             logger.info('Scheduling reconnect due to connection close...');
             if (connectionState.reconnectTimer) clearTimeout(connectionState.reconnectTimer);
-            
+
             // Programar reintento con retraso para no saturar
             const delay = config.stability?.reconnectDelay || 3000;
             connectionState.reconnectTimer = setTimeout(attemptReconnect, delay);
- 
+
           } else {
             logger.error('NOT reconnecting. Reason:', { reason, statusCode });
             connectionState.reconnectAttempts = 0; // Reiniciar contador
@@ -331,10 +331,10 @@ async function createNewSession() {
               // try { fs.rmSync(authPathInfo(), { recursive: true, force: true }); } catch (e) { logger.error('Error clearing auth info', e); }
             }
           }
-         
+
           emitQrStatusUpdate(getQRStatus());
         }
- 
+
         // Manejar QR
         if (update.qr) {
           logger.info('New QR received');
@@ -345,10 +345,10 @@ async function createNewSession() {
         logger.error('Error handling connection update', { error: error.message, stack: error.stack });
       }
     });
- 
+
     // ... (Tus setIntervals de keep-alive se quedan igual, aunque el de 5 min ya no es tan necesario)
     // ...
-    
+
     return sock;
   } catch (error) {
     logger.error('Error creating new session', { error: error.message, stack: error.stack });
@@ -467,7 +467,7 @@ export default {
         message: 'Ya se está intentando conectar o reconectar. Por favor, espera unos segundos.'
       };
     }
-   
+
     logger.info('Processing new QR request', { userId });
 
     try {
@@ -475,7 +475,7 @@ export default {
       if (connectionState.socket?.user) { /* ... */ }
       if (connectionState.qrData && Date.now() < connectionState.qrData.expiresAt) { /* ... */ }
       // ... (Rate limiting se queda igual) ...
-         
+
       connectionState.isConnecting = true; // <-- Bloqueo
       connectionState.connectionStatus = 'connecting';
       connectionState.reconnectAttempts = 0; // Reiniciar contador en solicitud MANUAL
@@ -726,7 +726,7 @@ export default {
     }
   },
 
-  async sendMessage({ phone, templateOption, psicologo, fecha, hora }) {
+  async sendMessage({ phone, templateOption, psicologo, fecha, hora, nombre = "", jitsi_url = "" }) {
     if (!connectionState.socket?.user) {
       throw new Error('No conectado a WhatsApp. Por favor, escanea el código QR primero.');
     }
@@ -739,6 +739,8 @@ export default {
     const formattedPhone = `${cleanPhone}@s.whatsapp.net`;
 
     const messageText = getTemplate(templateOption, {
+      nombre,
+      jitsi_url,
       nombrePsicologo: psicologo,
       fecha,
       hora
@@ -755,6 +757,8 @@ export default {
         psicologo,
         fecha,
         hora,
+        nombre,
+        hasJitsi: !!jitsi_url,
         messageLength: messageText.length
       });
 
@@ -772,6 +776,9 @@ export default {
         psicologo,
         fecha,
         hora,
+        // ✅ NUEVO (para historial)
+        nombre,
+        jitsi_url,
         messageId: result.key.id,
         sentAt: new Date().toISOString(),
         messagePreview: messageText.substring(0, 100) + (messageText.length > 100 ? '...' : ''),
@@ -821,6 +828,7 @@ export default {
       throw new Error(`Error al enviar mensaje: ${error.message}`);
     }
   },
+
 
   async sendMessageWithImage({ imageData, phone, caption }) {
     if (!connectionState.socket?.user) {
