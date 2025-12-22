@@ -42,29 +42,27 @@ export function getTemplate(option, params = {}) {
     nombrePsicologo = '',
     fecha = '',
     hora = '',
-    // ✅ NUEVO (no cambia nada si no lo envías)
     jitsi_url = ''
   } = params;
 
-  // ✅ NUEVO (solo se agrega si existe link)
+  //solo se agrega si existe link
   const linkLine = jitsi_url ? `\nIngresa a la reunion: ${jitsi_url}\n` : '';
 
   switch (option) {
     case 'cita_gratis':
-      return `👋 Hola ${nombre},
+      return `¡Hola, ${nombre}! 👋✨
 
-¡Gracias por dar este paso hacia tu bienestar! 💜
+      Tu cita en el *Centro Psicológico Contigo Voy* ha sido reservada con éxito. 🏡💜  
+      Nos alegra mucho acompañarte en este proceso.
 
-Tu cita ha sido *confirmada* ✅
+      Aquí tienes los detalles de tu espacio:
 
- *Te esperamos el ${fecha}*
-🕐 *A las ${hora}*  
-🏥 *En el Centro Psicológico Contigo Voy*  
-👨‍⚕️ Psicólogo: ${nombrePsicologo}${linkLine}
-Si necesitas reprogramar o cancelar, puedes escribirnos por este mismo chat.
-
-Gracias por confiar en Contigo Voy. 💙`;
-
+      ✨ Día: 📅 ${fecha}
+      ✨ Hora: ⏰ ${hora} hrs
+    ✨ Especialista: 👩‍⚕️ ${nombrePsicologo}
+      ${linkLine}
+      Nos vemos pronto para dar este paso juntos hacia tu bienestar.  
+      ¡Te esperamos con mucha ilusión! 🌿`;
 
     case 'cita_pagada':
       return `¡Hola 👋
