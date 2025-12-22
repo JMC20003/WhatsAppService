@@ -52,18 +52,18 @@ export function getTemplate(option, params = {}) {
     case 'cita_gratis':
       return `¡Hola, ${nombre}! 👋✨
 
-      Tu cita en el *Centro Psicológico Contigo Voy* ha sido reservada con éxito. 🏡💜  
-      Nos alegra mucho acompañarte en este proceso.
+Tu cita en el *Centro Psicológico Contigo Voy* ha sido reservada con éxito. 🏡💜  
+Nos alegra mucho acompañarte en este proceso.
 
-      Aquí tienes los detalles de tu espacio:
+Aquí tienes los detalles de tu espacio:
 
             ✨ Día: 📅 ${fecha}
             ✨ Hora: ⏰ ${hora} hrs
             ✨ Especialista: 👩‍⚕️ ${nombrePsicologo}
-            ✨ ${linkLine}
-            
-      Nos vemos pronto para dar este paso juntos hacia tu bienestar.  
-      ¡Te esperamos con mucha ilusión! 🌿`;
+    ${linkLine}
+
+Nos vemos pronto para dar este paso juntos hacia tu bienestar.  
+          ¡Te esperamos con mucha ilusión! 🌿`;
 
     case 'cita_pagada':
       return `¡Hola 👋
